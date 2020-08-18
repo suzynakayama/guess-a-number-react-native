@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: Colors.black,
-    fontSize: 18,
-    fontWeight: "bold"
+    fontSize: 24,
+    fontFamily: 'open-sans-bold'
   },
 });

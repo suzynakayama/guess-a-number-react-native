@@ -2,10 +2,7 @@ import React from 'react'
 import { TextInput, StyleSheet } from "react-native";
 import colors from '../constants/colors';
 
-const Input = (props) => {
-  console.log(props);
-  return <TextInput {...props} style={{ ...styles.input, ...props.style }} />;
-}
+const Input = (props) => (<TextInput {...props} style={{ ...styles.input, ...props.style }} />)
 
 export default Input
 

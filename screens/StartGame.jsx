@@ -1,41 +1,90 @@
-import React from 'react'
-import { View, Text, StyleSheet, Button } from "react-native"
+import React, { useState } from 'react'
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Keyboard, Alert } from "react-native"
 import Card from '../components/Card'
 import Colors from '../constants/colors'
 import Input from '../components/Input';
+import NumberContainer from '../components/NumberContainer';
+import DefaultStyles from "../constants/default-styles";
+import StyledButton from '../components/StyledButton';
 
-const StartGame = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Start a New Game!</Text>
-      <Card style={styles.card}>
-        <Text>Select a Number:</Text>
-        <Input style={ styles.input }
-          blurOnSubmit
-          autoCapitalize="none"
-          autoCorrect={ false }
-          keyboardType="numeric"
-          maxLength={2} />
-        <View style={styles.buttonContainer}>
-          <View style={styles.button}>
-            <Button
-              title="Reset"
-              color={Colors.red}
-              onPress={() => console.log("clicked")}
-            />
-          </View>
-          <View>
-            <Button
-              color={Colors.primary}
-              title="Confirm"
-              onPress={() => console.log("clicked")}
-            />
-          </View>
-        </View>
+const StartGame = ({ onStartGame }) => {
+  let confirmOutput;
+  const [selectedNumber, setSelectedNumber] = useState();
+  const [enteredValue, setEnteredValue] = useState("");
+  const [hasConfirmed, setHasConfirmed] = useState(false);
+
+  const handleNumberInput = (inputText) => {
+    setEnteredValue(inputText.replace(/[^0-9]/g, "")); //# replace anything that is not a number to empty string
+  };
+
+  const handleResetBtn = () => {
+    setEnteredValue("");
+    setHasConfirmed(false);
+  };
+
+  const handleConfirmBtn = () => {
+    const chosenNumber = parseInt(enteredValue);
+    if (isNaN(chosenNumber) || chosenNumber <= 0 || chosenNumber > 99) {
+      Alert.alert("Invalid Number!", "Number has to be between 1 and 99.", [
+        { text: "Ok", style: "destructive", onPress: handleResetBtn },
+      ]);
+      return;
+    }
+    setHasConfirmed(true);
+    setSelectedNumber(chosenNumber);
+    setEnteredValue("");
+    Keyboard.dismiss();
+  };
+
+  if (hasConfirmed)
+    confirmOutput = (
+      <Card style={styles.summaryContainer}>
+        <Text style={DefaultStyles.title}>Chosen Number</Text>
+        <NumberContainer>{selectedNumber}</NumberContainer>
+        <StyledButton
+          onPress={() => onStartGame(selectedNumber)}
+        >Start Game</StyledButton>
       </Card>
-    </View>
-  )
-}
+    );
+
+  return (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Start a New Game!</Text>
+        <Card style={styles.card}>
+          <Text style={DefaultStyles.bodyText}>Select a Number:</Text>
+          <Input
+            style={styles.input}
+            blurOnSubmit
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="number-pad"
+            maxLength={2}
+            onChangeText={handleNumberInput}
+            value={enteredValue}
+          />
+          <View style={styles.buttonContainer}>
+            <View style={styles.button}>
+              <Button
+                title="Reset"
+                color={Colors.red}
+                onPress={ handleResetBtn }
+              />
+            </View>
+            <View>
+              <Button
+                color={Colors.primary}
+                title="Confirm"
+                onPress={handleConfirmBtn}
+              />
+            </View>
+          </View>
+        </Card>
+        {confirmOutput}
+      </View>
+    </TouchableWithoutFeedback>
+  );
+};
 
 export default StartGame
 
@@ -48,6 +97,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     marginVertical: 10, //! margin bottom + margin top
+    fontFamily: 'open-sans-bold',
   },
   input: {
     width: 60,
@@ -66,5 +116,9 @@ const styles = StyleSheet.create({
   },
   button: {
     width: 120
+  },
+  summaryContainer: {
+    marginTop: 20,
+    alignItems: 'center'
   }
 });

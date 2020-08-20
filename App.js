@@ -50,10 +50,13 @@ export default function App() {
   if (guessRounds > 0) content = <GameOver rounds={ guessRounds } userNum={ userNum } onRestart={ configNewGame }/>
   
   return (
-    <View style={styles.container}>
-      <Header title="Guess a Number" />
-      {content}
-    </View>
+    //! Use SafeAreaView so all your content will be within the area that the use can see, will not be overlap by the notch or the scrollbar
+    <SafeAreaView>
+      <View style={styles.container}>
+        <Header title="Guess a Number" />
+        {content}
+      </View>
+    </SafeAreaView>
   );
 }
 

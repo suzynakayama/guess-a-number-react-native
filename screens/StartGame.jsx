@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Keyboard, Alert } from "react-native"
+import React, { useState, useEffect } from 'react'
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Keyboard, Alert, Dimensions, ScrollView, KeyboardAvoidingView } from "react-native"
 import Card from '../components/Card'
 import Colors from '../constants/colors'
 import Input from '../components/Input';
@@ -12,6 +12,7 @@ const StartGame = ({ onStartGame }) => {
   const [selectedNumber, setSelectedNumber] = useState();
   const [enteredValue, setEnteredValue] = useState("");
   const [hasConfirmed, setHasConfirmed] = useState(false);
+  const [buttonWidth, setButtonWidth] = useState(Dimensions.get("window").width / 4)
 
   const handleNumberInput = (inputText) => {
     setEnteredValue(inputText.replace(/[^0-9]/g, "")); //# replace anything that is not a number to empty string
@@ -46,43 +47,59 @@ const StartGame = ({ onStartGame }) => {
         >Start Game</StyledButton>
       </Card>
     );
+  
+  useEffect(() => {
+      const updateLayout = () => {
+        setButtonWidth(Dimensions.get("window").width / 4);
+      };
+
+    Dimensions.addEventListener("change", updateLayout);
+    
+    return () => {
+      Dimensions.removeEventListener('change', updateLayout)
+    }
+  })
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Start a New Game!</Text>
-        <Card style={styles.card}>
-          <Text style={DefaultStyles.bodyText}>Select a Number:</Text>
-          <Input
-            style={styles.input}
-            blurOnSubmit
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="number-pad"
-            maxLength={2}
-            onChangeText={handleNumberInput}
-            value={enteredValue}
-          />
-          <View style={styles.buttonContainer}>
-            <View style={styles.button}>
-              <Button
-                title="Reset"
-                color={Colors.red}
-                onPress={ handleResetBtn }
+    <ScrollView>
+      <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={30}>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <View style={styles.container}>
+            <Text style={styles.title}>Start a New Game!</Text>
+            <Card style={styles.card}>
+              <Text style={DefaultStyles.bodyText}>Select a Number:</Text>
+              <Input
+                style={styles.input}
+                blurOnSubmit
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="number-pad"
+                maxLength={2}
+                onChangeText={handleNumberInput}
+                value={enteredValue}
               />
-            </View>
-            <View>
-              <Button
-                color={Colors.primary}
-                title="Confirm"
-                onPress={handleConfirmBtn}
-              />
-            </View>
+              <View style={styles.buttonContainer}>
+                <View style={buttonWidth}>
+                  <Button
+                    title="Reset"
+                    color={Colors.red}
+                    onPress={handleResetBtn}
+                  />
+                </View>
+                <View style={buttonWidth}>
+                  <Button
+                    color={Colors.primary}
+                    title="Confirm"
+                    onPress={handleConfirmBtn}
+                  />
+                </View>
+              </View>
+            </Card>
+            {confirmOutput}
           </View>
-        </Card>
-        {confirmOutput}
-      </View>
-    </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 
@@ -104,8 +121,9 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   card: {
-    width: 300,
-    maxWidth: "80%",
+    width: '80%',
+    minWidth: 300,
+    maxWidth: "95%",
     alignItems: "center",
   },
   buttonContainer: {
@@ -114,9 +132,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 15,
   },
-  button: {
-    width: 120
-  },
+  // button: {
+     // width: 120
+  //   width: Dimensions.get('window').width / 4
+     // Dimensions is an object that RN offers you to get the size of the window.
+  // },
   summaryContainer: {
     marginTop: 20,
     alignItems: 'center'
